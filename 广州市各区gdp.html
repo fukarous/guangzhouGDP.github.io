@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024年广州市各区GDP数据分析报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #1a6dcc 0%, #0d4a9e 100%);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: #0d4a9e;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #1a6dcc;
+            padding-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+        
+        .btn-primary {
+            background-color: #1a6dcc;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .btn i {
+            font-style: normal;
+            font-size: 18px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+        
+        .col {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            color: #1a6dcc;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-title {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .analysis {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+        
+        .analysis h2 {
+            margin-bottom: 25px;
+        }
+        
+        .analysis-content {
+            padding-left: 20px;
+        }
+        
+        .highlight {
+            background-color: #e3f2fd;
+            padding: 15px 20px;
+            border-left: 4px solid #1a6dcc;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .key-point {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .key-point:before {
+            content: "•";
+            color: #1a6dcc;
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .comparison {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .comparison-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .comparison-value {
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+        
+        .increase {
+            color: #4caf50;
+        }
+        
+        .decrease {
+            color: #f44336;
+        }
+        
+        .trends {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 15px;
+        }
+        
+        .trend-item {
+            text-align: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            flex: 1;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            padding: 20px 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>2024年广州市各区GDP数据分析报告</h1>
+            <p class="subtitle">经济格局与区域发展洞察</p>
+        </header>
+        
+        <div class="chart-controls" style="margin-bottom: 20px;">
+            <button class="btn btn-success" id="exportAll">
+                <i>↓</i> 保存完整报告为图片
+            </button>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">GDP总量最高的区</div>
+                <div class="stat-value">天河区: 6614.69亿元</div>
+                <div>约占全市GDP的27.5%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">GDP增速最快的区</div>
+                <div class="stat-value">白云区: 12.2%</div>
+                <div>增长金额: 344.36亿元</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">中心四区GDP总量</div>
+                <div class="stat-value">16351.29亿元</div>
+                <div>占全市比重: 67.9%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">GDP总量最低的区</div>
+                <div class="stat-value">从化区: 441.66亿元</div>
+                <div>仅占天河区的6.7%</div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col">
+                <div class="chart-container" id="container1">
+                    <div class="chart-header">
+                        <h2>2024年广州市各区GDP对比</h2>
+                        <button class="btn btn-primary export-btn" data-chart="gdpChart2024">
+                            <i>📥</i> 保存图表
+                        </button>
+                    </div>
+                    <canvas id="gdpChart2024"></canvas>
+                </div>
+            </div>
+            <div class="col">
+                <div class="chart-container" id="container2">
+                    <div class="chart-header">
+                        <h2>2022-2024年GDP变化趋势</h2>
+                        <button class="btn btn-primary export-btn" data-chart="trendChart">
+                            <i>📥</i> 保存图表
+                        </button>
+                    </div>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col">
+                <div class="chart-container" id="container3">
+                    <div class="chart-header">
+                        <h2>2024年各区GDP占比分析</h2>
+                        <button class="btn btn-primary export-btn" data-chart="pieChart">
+                            <i>📥</i> 保存图表
+                        </button>
+                    </div>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+            <div class="col">
+                <div class="chart-container" id="container4">
+                    <div class="chart-header">
+                        <h2>同比变化幅度(%)</h2>
+                        <button class="btn btn-primary export-btn" data-chart="changeChart">
+                            <i>📥</i> 保存图表
+                        </button>
+                    </div>
+                    <canvas id="changeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="analysis">
+            <h2>数据分析与经济洞察</h2>
+            <div class="analysis-content">
+                <div class="highlight">
+                    <h3>总体格局</h3>
+                    <p>2024年广州市GDP总量约为2.4万亿元，同比增长4.8%。其中天河区以6614.69亿元高居榜首，黄埔区(4338.9亿)和越秀区(3511.89亿)分列二、三位。中心城区(天河、黄埔、越秀、海珠)经济总量占全市近七成，凸显核心引擎作用。</p>
+                </div>
+                
+                <h3>关键发现</h3>
+                <div class="key-point">天河区作为广州核心经济引擎，2024年GDP占全市27.5%，是第二名黄埔区的1.5倍多，金融、信息服务和总部经济优势明显。</div>
+                
+                <div class="key-point">白云区成为最大"黑马"，2024年GDP达3156.37亿元，同比增长12.2%，主要得益于机场经济、数字产业和现代物流业的发展。</div>
+                
+                <div class="key-point">海珠区实现3008.35亿元，首次突破3000亿大关，数字经济、会展经济和滨水经济成为新增长点。</div>
+                
+                <div class="comparison">
+                    <div class="comparison-item">
+                        <div>南沙区GDP变化</div>
+                        <div class="comparison-value decrease">2301.29亿元</div>
+                        <div>同比下降0.96%</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div>增城区GDP变化</div>
+                        <div class="comparison-value decrease">1412.37亿元</div>
+                        <div>同比下降2.76%</div>
+                    </div>
+                </div>
+                
+                <h3>发展趋势</h3>
+                <div class="trends">
+                    <div class="trend-item">
+                        <div>科技创新带</div>
+                        <p>天河-黄埔-海珠科技创新走廊持续发力，R&D投入占全市80%以上</p>
+                    </div>
+                    <div class="trend-item">
+                        <div>国际门户枢纽</div>
+                        <p>白云(空港)、南沙(海港)、花都(铁路)形成国际枢纽网络</p>
+                    </div>
+                    <div class="trend-item">
+                        <div>区域协调发展</div>
+                        <p>北部增长极(花都、从化)生态经济提速，东西部协同发展增强</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>数据来源：广州市2022-2024年各辖区GDP数据 | 分析时间：2024年</p>
+            <p>注：GDP数据单位为亿元人民币，同比变化计算为(2024年数据-2023年数据)/2023年数据</p>
+        </footer>
+    </div>
+
+    <script>
+        // 2024年GDP数据
+        const districts = ['天河区', '黄埔区', '越秀区', '白云区', '海珠区', '番禺区', '南沙区', '花都区', '增城区', '荔湾区', '从化区'];
+        const gdp2024 = [6614.69, 4338.9, 3511.89, 3156.37, 3008.35, 3070.56, 2301.29, 1860.06, 1412.37, 1316.36, 441.66];
+        const gdp2023 = [6551.26, 4315.17, 3810.24, 2812.01, 2720.16, 2866.95, 2323.54, 1801.51, 1452.46, 1277.93, 424.48];
+        const gdp2022 = [6215.72, 4313.76, 3650.18, 2476.2, 2502.52, 2705.47, 2252.58, 1770.81, 1325.27, 1215.57, 410.92];
+        
+        // 计算同比增长率
+        const growthRates = districts.map((district, index) => {
+            return ((gdp2024[index] - gdp2023[index]) / gdp2023[index] * 100).toFixed(2);
+        });
+        
+        // 按GDP降序排列
+        function sortData() {
+            const combined = districts.map((district, i) => ({
+                district,
+                gdp2024: gdp2024[i],
+                gdp2023: gdp2023[i],
+                gdp2022: gdp2022[i],
+                growthRate: growthRates[i]
+            }));
+            
+            combined.sort((a, b) => b.gdp2024 - a.gdp2024);
+            
+            return {
+                sortedDistricts: combined.map(item => item.district),
+                sortedGdp2024: combined.map(item => item.gdp2024),
+                sortedGdp2023: combined.map(item => item.gdp2023),
+                sortedGdp2022: combined.map(item => item.gdp2022),
+                sortedGrowthRates: combined.map(item => item.growthRate)
+            };
+        }
+        
+        const sorted = sortData();
+        
+        // 2024年GDP图表
+        const ctx2024 = document.getElementById('gdpChart2024').getContext('2d');
+        new Chart(ctx2024, {
+            type: 'bar',
+            data: {
+                labels: sorted.sortedDistricts,
+                datasets: [{
+                    label: '2024年GDP (亿元)',
+                    data: sorted.sortedGdp2024,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',   // 天河区
+                        'rgba(75, 192, 192, 0.7)',   // 黄埔区
+                        'rgba(153, 102, 255, 0.7)',  // 越秀区
+                        'rgba(255, 159, 64, 0.7)',   // 白云区
+                        'rgba(255, 99, 132, 0.7)',   // 海珠区
+                        'rgba(255, 205, 86, 0.7)',   // 番禺区
+                        'rgba(201, 203, 207, 0.7)',  // 南沙区
+                        'rgba(122, 196, 147, 0.7)',  // 花都区
+                        'rgba(220, 160, 225, 0.7)',  // 增城区
+                        'rgba(141, 167, 215, 0.7)',  // 荔湾区
+                        'rgba(166, 152, 134, 0.7)'   // 从化区
+                    ],
+                    borderColor: [
+                        'rgb(54, 162, 235)',
+                        'rgb(75, 192, 192)',
+                        'rgb(153, 102, 255)',
+                        'rgb(255, 159, 64)',
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 205, 86)',
+                        'rgb(201, 203, 207)',
+                        'rgb(122, 196, 147)',
+                        'rgb(220, 160, 225)',
+                        'rgb(141, 167, 215)',
+                        'rgb(166, 152, 134)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: '广州市各区GDP分布 (2024年)'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y} 亿元`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'GDP (亿元)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        
+        // 三年GDP趋势图表
+        const ctxTrend = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: sorted.sortedDistricts,
+                datasets: [
+                    {
+                        label: '2022年GDP (亿元)',
+                        data: sorted.sortedGdp2022,
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 4
+                    },
+                    {
+                        label: '2023年GDP (亿元)',
+                        data: sorted.sortedGdp2023,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 4
+                    },
+                    {
+                        label: '2024年GDP (亿元)',
+                        data: sorted.sortedGdp2024,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        pointRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '广州市各区GDP增长趋势 (2022-2024)'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y} 亿元`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'GDP (亿元)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        
+        // 新增饼图 - 2024年GDP占比分析
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: sorted.sortedDistricts,
+                datasets: [{
+                    label: '2024年GDP占比',
+                    data: sorted.sortedGdp2024,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(255, 205, 86, 0.7)',
+                        'rgba(201, 203, 207, 0.7)',
+                        'rgba(122, 196, 147, 0.7)',
+                        'rgba(220, 160, 225, 0.7)',
+                        'rgba(141, 167, 215, 0.7)',
+                        'rgba(166, 152, 134, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.chart.getDatasetMeta(0).total;
+                                const percentage = Math.round((value / total) * 100) + '%';
+                                return `${label}: ${value} 亿元 (${percentage})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 同比变化图表
+        const ctxChange = document.getElementById('changeChart').getContext('2d');
+        new Chart(ctxChange, {
+            type: 'bar',
+            data: {
+                labels: sorted.sortedDistricts,
+                datasets: [{
+                    label: 'GDP同比增长率(%)',
+                    data: sorted.sortedGrowthRates,
+                    backgroundColor: sorted.sortedGrowthRates.map(rate => 
+                        rate > 0 ? 'rgba(40, 167, 69, 0.7)' : 'rgba(220, 53, 69, 0.7)'
+                    ),
+                    borderColor: sorted.sortedGrowthRates.map(rate => 
+                        rate > 0 ? 'rgb(40, 167, 69)' : 'rgb(220, 53, 69)'
+                    ),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '广州市各区GDP同比增长率'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y}%`;
+                            },
+                            footer: function(tooltipItems) {
+                                const index = tooltipItems[0].dataIndex;
+                                const changeValue = sorted.sortedGdp2024[index] - sorted.sortedGdp2023[index];
+                                return `同比变化: ${changeValue.toFixed(2)} 亿元`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '增长率(%)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        
+        // 导出功能实现
+        document.addEventListener('DOMContentLoaded', function() {
+            // 导出单个图表
+            const exportButtons = document.querySelectorAll('.export-btn');
+            exportButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const chartId = this.getAttribute('data-chart');
+                    const canvas = document.getElementById(chartId);
+                    
+                    // 创建下载链接
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = `广州市各区GDP图表-${chartId}.png`;
+                    link.click();
+                });
+            });
+            
+            // 导出完整报告
+            const exportAllBtn = document.getElementById('exportAll');
+            exportAllBtn.addEventListener('click', function() {
+                // 滚动回页面顶部确保完整截图
+                window.scrollTo(0, 0);
+                
+                // 添加"正在保存..."提示
+                const tempNotification = document.createElement('div');
+                tempNotification.textContent = '正在保存报告为图片...';
+                tempNotification.style.position = 'fixed';
+                tempNotification.style.top = '20px';
+                tempNotification.style.left = '50%';
+                tempNotification.style.transform = 'translateX(-50%)';
+                tempNotification.style.backgroundColor = '#333';
+                tempNotification.style.color = '#fff';
+                tempNotification.style.padding = '10px 20px';
+                tempNotification.style.borderRadius = '5px';
+                tempNotification.style.zIndex = '9999';
+                document.body.appendChild(tempNotification);
+                
+                setTimeout(() => {
+                    html2canvas(document.body).then(canvas => {
+                        // 创建下载链接
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = '广州市各区GDP数据分析报告.png';
+                        link.click();
+                        
+                        // 移除提示
+                        document.body.removeChild(tempNotification);
+                    });
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
